@@ -32,7 +32,7 @@ plt.rcParams.update(clrs.my_plt_confg)
 #=====================================================
 mf = MassFunction(
     z=0,    # Redshift
-    cosmo_params={'Om0':csmlgy.O_m0, 'Ob0':csmlgy.O_b0, 'Tcmb0':2.725, 'Neff':3.05, 'H0':csmlgy.h},
+    cosmo_params={'Om0':csmlgy.O_m0, 'Ob0':csmlgy.O_b0, 'Tcmb0':2.725, 'Neff':3.05, 'H0':100*csmlgy.h},
     n=csmlgy.n_s,
     sigma_8=csmlgy.sigma_8,
     Mmin=hcnst.HALO_LOGMVIR_MIN, # Minimum halo logMvir
@@ -64,6 +64,7 @@ while True:
             break
         else:
             print('Please, enter a valid integer (1 or 2).')
+            continue
 
 # Getting data from hmf.MassFunction
 analytic_hmf = mf.dndlog10m         # Halo Mass Function (HMF) [column data]
@@ -75,6 +76,9 @@ analytic_pdf = analytic_hmf/nvir_min    # P(Mvir) dlogMvir
 analytic_cpdf = mf.ngtm/nvir_min        # P(>Mvir)
 
 # Get user desire for the number of Halos N(>Mvir) or comoving volume V
+# To avoid undefined variables
+ntot_halos = None
+comoving_v = None
 while True:
     if selection == 1:
         try:
@@ -83,7 +87,7 @@ while True:
             print('Please, enter a valid integer value.')
         else:
             if ntot_halos <= 0:
-                print('Please, enter a valid value.')
+                print('Please, enter a value greater than zero.')
                 continue
             else:
                 # Compute the comoving volume for ntot_halos
@@ -96,9 +100,17 @@ while True:
             print('Please, enter a valid numeric value.')
         else:
             if comoving_v <= 0:
-                print('Please, enter a valid value.')
+                print('Please, enter a value greater than zero.')
                 continue
             else:
-                # Compute the number of halos for cmving_v (must be an integer value)
-                ntot_halos = int(comoving_v*nvir_min)
+                # Compute the number of halos for comoving_v (must be an integer value)
+                ntot_halos = int(comoving_v * nvir_min)
                 break
+
+# Create dictionary with the Mock Sample properties: comoving volume and N(>Mvir)
+mock_properties = {'N(>Mvir)' : ntot_halos, 'V': comoving_v}
+print(f'''
+Halo Mock Catalog Properties
+=====================================================
+N( >{hcnst.HALO_LOGMVIR_MIN} ): {ntot_halos} Halos
+V: {comoving_v:22.4f} h⁻³Mpc³''')
