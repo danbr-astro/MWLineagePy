@@ -17,6 +17,7 @@ Outputs:
         - 01_analytic_vs_mock_hmf.pdf
         - 01_halo_shmr.pdf      ---> Stellar to Halo Mass Relation for Halos plot
 """
+import numpy as np
 from hmf import MassFunction
 import matplotlib.pyplot as plt
 import graphic_tools.mycolors as clrs
@@ -41,3 +42,33 @@ mf = MassFunction(
     mdef_model='SOVirial',
     hmf_model='Behroozi'
 )
+
+#===================================
+# Creating Halo Mock Catalog
+#===================================
+print(f'''
+Halo Mock Catalog - Creation Mode
+=================================================
+1. By the Number of Halos N( >{hcnst.HALO_LOGMVIR_MIN} )
+2. By the Comoving Volumen V''')
+
+# Get user selection with validation and error handling
+while True:
+    try:
+        selection = int(input('Enter your selection (1 or 2): '))
+    except ValueError:
+        print('Please, enter a integer value (1 or 2).')
+    else:
+        if (selection == 1) or (selection == 2):
+            break
+        else:
+            print('Please, enter a valid integer (1 or 2).')
+
+# Getting data from hmf.MassFunction
+analytic_hmf = mf.dndlog10m         # Halo Mass Function (HMF) [column data]
+analytic_logmvir = np.log10(mf.m)   # log10(Mvir) [column data]
+nvir_min = mf.ngtm[0]               # Minimum cumulative number density (CHMF) n(>Mvir_min) [float]
+
+# Compute PDF and CPDF associated to HMF
+analytic_pdf = analytic_hmf/nvir_min    # P(Mvir) dlogMvir
+analytic_cpdf = mf.ngtm/nvir_min        # P(>Mvir)
