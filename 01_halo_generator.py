@@ -50,7 +50,8 @@ print(f'''
 Halo Mock Catalog - Creation Mode
 =================================================
 1. By the Number of Halos N( >{hcnst.HALO_LOGMVIR_MIN} )
-2. By the Comoving Volumen V''')
+2. By the Comoving Volumen V
+=================================================''')
 
 # Get user selection with validation and error handling
 while True:
@@ -72,3 +73,32 @@ nvir_min = mf.ngtm[0]               # Minimum cumulative number density (CHMF) n
 # Compute PDF and CPDF associated to HMF
 analytic_pdf = analytic_hmf/nvir_min    # P(Mvir) dlogMvir
 analytic_cpdf = mf.ngtm/nvir_min        # P(>Mvir)
+
+# Get user desire for the number of Halos N(>Mvir) or comoving volume V
+while True:
+    if selection == 1:
+        try:
+            ntot_halos = int(input(f"Enter the number of halos N( >{hcnst.HALO_LOGMVIR_MIN} ) to sample: "))
+        except ValueError:
+            print('Please, enter a valid integer value.')
+        else:
+            if ntot_halos <= 0:
+                print('Please, enter a valid value.')
+                continue
+            else:
+                # Compute the comoving volume for ntot_halos
+                comoving_v = ntot_halos/nvir_min
+                break
+    elif selection == 2:
+        try:
+            comoving_v = float(input(f'Enter the Comoving Volume V to sample: '))
+        except ValueError:
+            print('Please, enter a valid numeric value.')
+        else:
+            if comoving_v <= 0:
+                print('Please, enter a valid value.')
+                continue
+            else:
+                # Compute the number of halos for cmving_v (must be an integer value)
+                ntot_halos = int(comoving_v*nvir_min)
+                break
