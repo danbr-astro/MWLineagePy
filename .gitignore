@@ -1,0 +1,24 @@
+# Ignore data files
+*.pdf
+*.csv
+*.data
+
+# Ignore entire directories (including all their contents)
+data/
+mock_data/
+plots/
+notebooks/
+
+# Ignore Python temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyo
+*.pyd
+
+# Ignore virtual environments and local configuration files
+.env
+.venv/
+env/
+venv/
