@@ -14,13 +14,15 @@ Outputs:
     mock_data/
         - 01_mock_halos.csv     ---> Columns: Halo_id, Halo_logMvir, Halo_logMste
     plots/
-        - 01_analytic_vs_mock_hmf.pdf
+        - 01_analytic_vs_mock_hmf.pdf   ---> Validation plot
         - 01_halo_shmr.pdf      ---> Stellar to Halo Mass Relation for Halos plot
 """
 import numpy as np
+import pandas as pd
 from hmf import MassFunction
 import matplotlib.pyplot as plt
 import graphic_tools.mycolors as clrs
+from scipy.interpolate import interp1d
 import halo_tools.halo_constants as hcnst
 import cosmology_tools.cosmo_constants as csmlgy
 
@@ -114,3 +116,16 @@ Halo Mock Catalog Properties
 =====================================================
 N( >{hcnst.HALO_LOGMVIR_MIN} ): {ntot_halos} Halos
 V: {comoving_v:22.4f} h⁻³Mpc³''')
+
+# Create interpolation nodes Data Frame
+interp_nodes = pd.DataFrame({
+    'Halo_logMvir': analytic_logmvir,   # Analytic logMvir values from hmf
+    'P(>Mvir)': analytic_cpdf,          # Analytic P(>Mvir) derived above
+})
+
+# We sort the DataFrame for interpolation.
+# To interpolate, the 'x' data (from 'x' and 'f(x)') must be in ascending order.
+sorted_nodes = interp_nodes.sort_values(by = 'P(>Mvir)')
+
+# Create cubic interpolation function
+interp_function = interp1d(sorted_nodes['P(>Mvir)'],sorted_nodes['Halo_logMvir'],kind= 'cubic')
