@@ -5,7 +5,6 @@ Personal matplotlib configuration and color palette.
 
 This module provides a personal configuration for matplotlib rcParams settings and a color collection
 for plotting across the main scripts.
-
 """
 # Personal parameters for Matplotlib
 my_plt_confg = {
