@@ -14,7 +14,11 @@ References:
     - Boylan-Kolchin et al. (2010) MNRAS,406, 896
 """
 import numpy as np
+import pandas as pd
+from scipy import optimize
+from typing import Literal
 from scipy.stats import poisson
+from joblib import Parallel,delayed
 import halo_tools.halo_assembly as hass
 import halo_tools.halo_constants as hcnst
 import cosmology_tools.cosmo_constants as csmlgy
@@ -101,17 +105,24 @@ def SHMR_RP17(z, log10Mvir):  # Best fitting model for the SHMR RP17.
 
     return log10Ms
 
-def compute_log_stellar_mass(halos_df):
+def compute_log_stellar_mass(halos_df,sel_param: Literal[0,1]):
     """
     This function computes the central galaxy stellar mass given a host halo virial mass with 0.15 lognormal
     scatter (Rodríguez-Publa et al. 2013).
     :param halos_df: DataFrame with column ['Halo_logMvir'] with host halo log virial mass.
+    :param sel_param:
     :return: None. It adds the column ['Halo_logMste'] with the stellar mass of the central galaxy for each halo.
     """
-    logmvir_array = halos_df['Halo_logMvir'].values
-    mean_logmste = SHMR_RP17(0, logmvir_array)
-    # Generate random stellar masses with 0.15 lognormal scatter.
-    halos_df['Halo_logMste'] = np.random.normal(loc= mean_logmste,scale= 0.15 )
+    if sel_param == 0:
+        logmvir_array = halos_df['Halo_logMvir'].values
+        mean_logmste = SHMR_RP17(0, logmvir_array)
+        # Generate random stellar masses with 0.15 lognormal scatter.
+        halos_df['Halo_logMste'] = np.random.normal(loc= mean_logmste,scale= 0.15 )
+    elif sel_param == 1:
+        logmvir_array = halos_df['Subhalo_logMvir'].values
+        mean_logmste = SHMR_RP17(0, logmvir_array)
+        # Generate random stellar masses with 0.15 lognormal scatter.
+        halos_df['Subhalo_logMste'] = np.random.normal(loc=mean_logmste, scale=0.15)
 #=============================================
 # Halo Concentrations
 #=============================================
@@ -125,3 +136,43 @@ def compute_concentration(halos_df):
     for u in halos_df['Poisson_u']:
         delta_log_cvir.append(hass.inverse_of_normal_distribution(u, scatter_cvir))
     halos_df['Halo_logCvir'] = np.log10(hass.cvir_hal(halos_df['Halo_logMvir'], 0, hass.h_BP)) + delta_log_cvir
+#==============================================
+# Subhalo Virial Masses
+#==============================================
+def funct_to_solve(subhalo_mvir,halo_mvir,u,avg):
+    '''
+    Función a obtener el valor de subhalo_mvir para el cual la función se anula
+    Nota: Las masas viriales deben ir sin log10
+    :param subhalo_mvir: masa virial del subhalo
+    :param halo_mvir: masa virial del halo padre
+    :param u: valor obtenido aleatoriamente de una distribución normal entre [0,1)
+    :param avg: Número de Subhalos Promedio (nsub_mean)
+    :return: Función a obtener raíz
+    '''
+    f=mean_nsub(halo_mvir,subhalo_mvir)-(u*avg)
+    return f
+def compute_subhalo_mvir(halos_df):
+    '''
+    :param halos_df: dataframe de los datos para los halos
+    :return: subhalos_df:Dtaaframe con datos de los subhalos
+    '''
+    # .values() Los convierte en arreglo de NumPy para liberar memoria
+    halo_ids=halos_df['Halo_id'].values
+    halo_logMvir=halos_df['Halo_logMvir'].values
+    halo_Nsub=halos_df['Halo_Nsub'].values
+    nsub_avg_array=halos_df['Halo_mean_Nsub'].values
+    def process(i):
+        row=[]
+        nsub=halo_Nsub[i]
+        nsub_avg=nsub_avg_array[i]
+        halo_mvir=10**halo_logMvir[i]
+        for j in range(0,nsub):
+            u=np.random.rand()
+            root=optimize.root(lambda subhalo_mvir:funct_to_solve(subhalo_mvir,halo_mvir,u,nsub_avg),x0=10**9,method='hybr')
+            subhalo_logMvir=np.log10(root.x[0])
+            row.append((halo_ids[i],halo_logMvir[i],subhalo_logMvir))
+        return row
+    resultados=Parallel(n_jobs=-1)(delayed(process)(i) for i in range(len(halo_ids)))
+    resultados_planos=[item for sublist in resultados for item in sublist]
+    subhalos_df=pd.DataFrame(resultados_planos,columns=['Halo_id','Halo_logMvir','Subhalo_logMvir'])
+    return subhalos_df

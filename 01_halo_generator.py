@@ -156,7 +156,7 @@ hmf = hdst.compute_hmf(mock_halos,comoving_v)
 #=========================================
 # Compute Central Galaxy Stellar Masses
 #=========================================
-hrel.compute_log_stellar_mass(mock_halos)
+hrel.compute_log_stellar_mass(mock_halos,0)
 
 # =======================================
 # Save Mock Halo Catalog to CSV

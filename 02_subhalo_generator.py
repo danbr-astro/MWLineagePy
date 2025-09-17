@@ -41,6 +41,16 @@ hrel.compute_nsub(mock_halos)
 hrel.compute_concentration(mock_halos)
 
 #==========================================
+# Creating Subhalo Mock Catalog
+#==========================================
+# Compute Subhalo Virial Masses
+mock_subhalos = hrel.compute_subhalo_mvir(mock_halos)
+# Assignation of Stellar Mass
+hrel.compute_log_stellar_mass(mock_subhalos,1)
+print(mock_halos)
+print(mock_subhalos)
+
+#==========================================
 # Plots
 #==========================================
 # LogMvir vs lognNsub
