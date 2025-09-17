@@ -6,7 +6,7 @@ Halo determined relations functions for the number of subhalos and stellar mass 
 This module provides the necessary functions to compute the cumulative number of subhalos at a given host halo virial
 mass known as the Cumulative SubHalo Mass Function (Cumulative SHMF) with its poisson scatter. It also includes the
 functions needed to assign to each halo or subhalo a Central Galaxy Stellar Mass using the Stellar to Halo Mass
-Relation (SHMR) with its lognormal scatter.
+Relation (SHMR) with its lognormal scatter. Finally, it also computes the concentrations for halos at z = 0.
 
 References:
     - Rodríguez-Puebla et al. (2013) ApJ, 773:172, p.2
@@ -15,6 +15,7 @@ References:
 """
 import numpy as np
 from scipy.stats import poisson
+import halo_tools.halo_assembly as hass
 import halo_tools.halo_constants as hcnst
 import cosmology_tools.cosmo_constants as csmlgy
 
@@ -51,7 +52,7 @@ def compute_nsub(halos_df):
     # We wish to create a Subhalo Population above SUBHALO_LOGMVIR_MIN = 9 M_sun
     halos_df['Halo_mean_Nsub'] = mean_nsub(hmvir_array,10**hcnst.SUBHALO_LOGMVIR_MIN)
     halos_df['Halo_Nsub'] = poisson.rvs(mu=halos_df['Halo_mean_Nsub'] )
-    halos_df['Poisson_u'] = 1-poisson.cdf(halos_df['Halo_Nsub'],halos_df['Halo_mean_Nsub'])
+    halos_df['Poisson_u'] = 1-poisson.cdf(halos_df['Halo_Nsub'],halos_df['Halo_mean_Nsub']) # ---> 1 - Cumulative PDF
 #======================================================
 # Stellar to Halo Mass Relation
 #======================================================
@@ -111,4 +112,16 @@ def compute_log_stellar_mass(halos_df):
     mean_logmste = SHMR_RP17(0, logmvir_array)
     # Generate random stellar masses with 0.15 lognormal scatter.
     halos_df['Halo_logMste'] = np.random.normal(loc= mean_logmste,scale= 0.15 )
-
+#=============================================
+# Halo Concentrations
+#=============================================
+def compute_concentration(halos_df):
+    """
+    TO DO: Explain this function
+    :return: None. It adds a column to halos_df. ['Halo_logCvir']
+    """
+    scatter_cvir = 0.1
+    delta_log_cvir = list()
+    for u in halos_df['Poisson_u']:
+        delta_log_cvir.append(hass.inverse_of_normal_distribution(u, scatter_cvir))
+    halos_df['Halo_logCvir'] = np.log10(hass.cvir_hal(halos_df['Halo_logMvir'], 0, hass.h_BP)) + delta_log_cvir

@@ -28,7 +28,6 @@ plt.rcParams.update(clrs.my_plt_confg)
 #==========================================
 # DataFrame loading
 #==========================================
-# Loading mock_halos.csv
 mock_halos = pd.read_csv('mock_data/01_mock_halos.csv') # ---> ['Halo_id','Halo_logMvir','Halo_logMste']
 
 #==========================================
@@ -37,12 +36,20 @@ mock_halos = pd.read_csv('mock_data/01_mock_halos.csv') # ---> ['Halo_id','Halo_
 hrel.compute_nsub(mock_halos)
 
 #==========================================
+# Compute Concentrations
+#==========================================
+hrel.compute_concentration(mock_halos)
+
+#==========================================
 # Plots
 #==========================================
 # LogMvir vs lognNsub
 mock_halos_aux = mock_halos[mock_halos['Halo_Nsub'] != 0]  # --> To avoid log10(0)
 fig1, axs1 = plt.subplots(1,1,figsize=(8,8))
-axs1.scatter(mock_halos_aux['Halo_logMvir'],np.log10(mock_halos_aux['Halo_Nsub']),s=1,color = clrs.FAV_PURPLE,rasterized = True)
+sc = axs1.scatter(mock_halos_aux['Halo_logMvir'],np.log10(mock_halos_aux['Halo_Nsub']),s=1,c=mock_halos_aux['Halo_logCvir'],cmap='viridis',rasterized = True)
 axs1.set_xlabel(r'$\log{M_{vir}}$  $[M_{\odot}h^{-1}]$',fontsize=15)
 axs1.set_ylabel(r'$\log{\mathcal{N}_{sub}}$',fontsize=15)
+cbar = plt.colorbar(sc)
+cbar.set_label("Concentraciones")
+plt.savefig('plots/02_mvir_vs_nsub.pdf')
 plt.show()
