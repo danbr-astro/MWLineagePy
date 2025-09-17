@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import graphic_tools.mycolors as clrs
 from scipy.interpolate import interp1d
 import halo_tools.halo_constants as hcnst
+import halo_tools.halo_distributions as hdst
 import cosmology_tools.cosmo_constants as csmlgy
 
 # Set personal configuration for plots
@@ -145,6 +146,21 @@ mock_halos = pd.DataFrame({
     'Halo_id' : np.arange(1,ntot_halos+1),      # Unique mock halo identifier
     'Halo_logMvir': interp_function(random_u)   # logMvir interpolated
 })
+
 #=========================================
 # Compute synthetic HMF
 #=========================================
+hmf = hdst.compute_hmf(mock_halos,comoving_v)
+
+#=========================================
+# Plots
+#=========================================
+# Analytic & Synthetic Mass Function
+fig1, axs1 = plt.subplots(1,1,figsize=(7,7))
+axs1.plot(analytic_logmvir,np.log10(analytic_hmf),color = clrs.FAV_RED, linewidth = 5, label = r'Analytic $\phi_{vir}$')
+axs1.plot(hmf['Halo_logMvir'],np.log10(hmf['HMF']),color = clrs.FAV_BLUE, ls ='--', linewidth = 4, label = r'Synthetic $\phi_{vir}$')
+axs1.set_xlabel(r'$\log{M_{vir}}$  $[M_\odot]$',fontsize=15)
+axs1.set_ylabel(r'$\phi_{vir}$  $[{Mpc}^{-3}{dex}^{-1}]$',fontsize=15)
+plt.legend()
+#plt.savefig('plots/01_analytic_vs_mock_hmf.pdf')
+plt.show()
