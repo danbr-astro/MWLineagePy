@@ -28,7 +28,7 @@ import halo_tools.halo_constants as hcnst
 import halo_tools.halo_distributions as hdst
 import cosmology_tools.cosmo_constants as csmlgy
 
-# Set personal configuration for plots
+# Personal set up for plots
 plt.rcParams.update(clrs.my_plt_confg)
 
 #=====================================================
@@ -156,12 +156,12 @@ hmf = hdst.compute_hmf(mock_halos,comoving_v)
 #=========================================
 # Compute Central Galaxy Stellar Masses
 #=========================================
-hrel.compute_log_stellar_mass(mock_halos)
+hrel.compute_log_stellar_mass(mock_halos,0)
 
 # =======================================
 # Save Mock Halo Catalog to CSV
 # =======================================
-mock_halos.to_csv('data/01_mock_halos.csv',index = False) # Columns ---> ['Halo_id','Halo_logMvir','Halo_logMste']
+mock_halos.to_csv('mock_data/01_mock_halos.csv',index = False) # Columns ---> ['Halo_id','Halo_logMvir','Halo_logMste']
 
 #=========================================
 # Plots
