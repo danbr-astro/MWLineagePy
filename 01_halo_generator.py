@@ -115,7 +115,9 @@ print(f'''
 Halo Mock Catalog Properties
 =====================================================
 N( >{hcnst.HALO_LOGMVIR_MIN} ): {ntot_halos} Halos
-V: {comoving_v:22.4f} h⁻³Mpc³''')
+V: {comoving_v:22.4f} h⁻³Mpc³
+=====================================================
+''')
 
 # Create interpolation nodes Data Frame
 interp_nodes = pd.DataFrame({
@@ -129,3 +131,17 @@ sorted_nodes = interp_nodes.sort_values(by = 'P(>Mvir)')
 
 # Create cubic interpolation function
 interp_function = interp1d(sorted_nodes['P(>Mvir)'],sorted_nodes['Halo_logMvir'],kind= 'cubic')
+
+# Generate n_tot_halos uniform random values.
+# To avoid extrpolation, random_u must satisfy:   random_u ∈ [P(>Mvir)_min, P(>Mvir)_max]
+random_u = np.random.uniform(
+    interp_nodes['P(>Mvir)'].min(),     # Minimum analytic P(>Mvir)_min
+    interp_nodes['P(>Mvir)'].max(),     # Maximum analytic P(>Mvir)_max
+    ntot_halos                          # Total number of halos to sample N(>Mvir)
+)
+
+# Generate Halo Mock Catalog
+mock_halos = pd.DataFrame({
+    'Halo_id' : np.arange(1,ntot_halos+1),      # Unique mock halo identifier
+    'Halo_logMvir': interp_function(random_u)   # logMvir interpolated
+})
