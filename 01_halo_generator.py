@@ -145,3 +145,6 @@ mock_halos = pd.DataFrame({
     'Halo_id' : np.arange(1,ntot_halos+1),      # Unique mock halo identifier
     'Halo_logMvir': interp_function(random_u)   # logMvir interpolated
 })
+#=========================================
+# Compute synthetic HMF
+#=========================================
