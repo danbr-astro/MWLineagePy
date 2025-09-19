@@ -52,12 +52,10 @@ hrel.compute_log_stellar_mass(mock_subhalos,1)
 # Exporting DataFrames to CSV files
 #==========================================
 # Exporting Halo Mock Catalog
-mock_halos = mock_halos.drop(columns= ['Halo_mean_Nsub'])
+mock_halos = mock_halos.drop(columns= ['Halo_mean_Nsub','Poisson_u'])
 mock_halos.to_csv('mock_data/02_mock_halos.csv',index=False)
 # Exporting Subhalo Mock Catalog
 mock_subhalos.to_csv('mock_data/02_mock_subhalos.csv',index=False)
-print(mock_halos)
-print(mock_subhalos)
 
 #==========================================
 # Plots
