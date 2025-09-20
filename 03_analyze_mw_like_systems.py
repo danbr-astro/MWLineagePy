@@ -14,6 +14,8 @@ Outputs
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from win32security import TRUSTEE_IS_USER
+
 import graphic_tools.mycolors as clrs
 import halo_tools.halo_relations as hrel
 import halo_tools.halo_constants as hcnst
@@ -64,6 +66,11 @@ mean_galcsmf = gdst.mean_gal_csmf(mock_mwlike_subhalos,logmste_threshold)
 # Mean Subhalo CSMF
 mean_subhcsmf = hdst.mean_subh_csmf(mock_mwlike_subhalos)
 
+# Individual Galaxy CSMF
+ind_galcsmf = gdst.ind_gal_csmf(mock_mwlike_subhalos)
+# Individual Subhalo CSMF
+ind_subhcsmf = hdst.ind_subh_csmf(mock_mwlike_subhalos)
+
 #=======================================
 # Plots
 #=======================================
@@ -84,11 +91,32 @@ axs2.legend()
 # Cumulative Mass Function
 fig3, axs3 = plt.subplots(1,1,figsize=(7,7))
 # Galaxies
+    # Individual Satellite Galaxy CMSF
+first = True
+for halo_id in mock_mwlike_halos['Halo_id'].sample(500):
+    auxiliar_df = ind_galcsmf[ind_galcsmf['Halo_id'] == halo_id]
+    if first:
+        plt.plot(auxiliar_df['log_Mste'], np.log10(auxiliar_df['ind_galCSMF']), color='#dadaeb', alpha=0.2, linewidth=1,
+                 rasterized=True,label=r'MW-like galaxies CSMF')
+        first = False
+    else:
+        plt.plot(auxiliar_df['log_Mste'],np.log10(auxiliar_df['ind_galCSMF']),color='#dadaeb',alpha=0.2,linewidth=1,rasterized= True)
     # Mean Galaxy CSMF
-axs3.plot(mean_galcsmf['log_Mste'],np.log10(mean_galcsmf['mean_galCSMF']),color='#404040',linewidth=3)
+axs3.plot(mean_galcsmf['log_Mste'],np.log10(mean_galcsmf['mean_galCSMF']),color='#756bb1',linewidth=3, rasterized= True,label=r'Mean Galaxy CSMF')
 
 # Subhalos
+    # Individual Subhalo CSMF
+first = True
+for halo_id in mock_mwlike_halos['Halo_id'].sample(500):
+    auxiliar_df = ind_subhcsmf[ind_subhcsmf['Halo_id'] == halo_id]
+    if first:
+        plt.plot(auxiliar_df['log_Mvir'], np.log10(auxiliar_df['ind_subhCSMF']), color='#d9d9d9', alpha=0.2,
+                 linewidth=1, rasterized=True,label=r'MW-like subhalos CSMF')
+        first = False
+    else:
+        plt.plot(auxiliar_df['log_Mvir'],np.log10(auxiliar_df['ind_subhCSMF']),color= '#d9d9d9',alpha=0.2, linewidth=1,rasterized=True)
     # Mean Subhalo CSMF
-axs3.plot(mean_subhcsmf['log_Mvir'],np.log10(mean_subhcsmf['mean_subhaloCSMF']),color= '#756bb1', linewidth= 3)
-axs3.axis((logmste_threshold,12.3,0,3))
-#plt.show()
+axs3.plot(mean_subhcsmf['log_Mvir'],np.log10(mean_subhcsmf['mean_subhaloCSMF']),color= '#404040', linewidth= 3,label=r'Mean Subhalo CSMF')
+axs3.axis((logmste_threshold,12.3,0,2.5))
+plt.legend()
+plt.show()

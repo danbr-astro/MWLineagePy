@@ -151,6 +151,7 @@ def funct_to_solve(subhalo_mvir,halo_mvir,u,avg):
     '''
     f=mean_nsub(halo_mvir,subhalo_mvir)-(u*avg)
     return f
+
 def compute_subhalo_mvir(halos_df):
     '''
     :param halos_df: dataframe de los datos para los halos

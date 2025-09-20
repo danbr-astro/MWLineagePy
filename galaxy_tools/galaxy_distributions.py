@@ -8,6 +8,7 @@ At first, it computes de Stellar Mass Function (SMF) for central and satellite g
 """
 import numpy as np
 import pandas as pd
+from joblib import Parallel,delayed
 
 #===============================
 # Auxiliar Functions
@@ -72,3 +73,31 @@ def mean_gal_csmf(subhalos_df,logmste_threshold):
         'mean_galCSMF': hollow_list
     })
     return mean_galaxy_csmf
+
+def ind_gal_csmf(subhalos_df):
+    """
+    This function computes for each host halo its CSMF.
+    :param subhalos_df: Dataframe with the data of subhalos and their centarl galaxies (for subhalos).
+    :return individual_galaxy_csmf: DataFrame with all the individual CSMF from each host halo.
+    Columns ---> ['Halo_id','log_Mste','ind_galCSMF']
+    """
+    def halo_csmf(halo_id):
+        hollow_haloid = list()
+        hollow_logmste = list()
+        hollow_csmf = list()
+        auxiliar_df = subhalos_df[subhalos_df['Halo_id'] == halo_id].sort_values(by= 'Subhalo_logMste')
+        for logmste in auxiliar_df['Subhalo_logMste']:
+            n_gal = len(auxiliar_df[auxiliar_df['Subhalo_logMste'] >= logmste])
+            hollow_haloid.append(halo_id)
+            hollow_logmste.append(logmste)
+            hollow_csmf.append(n_gal)
+        partial_df = pd.DataFrame({
+            'Halo_id': hollow_haloid,
+            'log_Mste': hollow_logmste,
+            'ind_galCSMF': hollow_csmf
+        })
+        return partial_df
+    results = Parallel(n_jobs= 8)(delayed(halo_csmf)(halo_id) for halo_id in subhalos_df['Halo_id'].unique())
+    # We concat each DataFrame vertically
+    individual_galaxy_csmf = pd.concat(results,axis= 0, ignore_index= True)
+    return individual_galaxy_csmf
