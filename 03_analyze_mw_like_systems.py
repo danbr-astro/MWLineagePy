@@ -6,13 +6,19 @@ Outputs
             - 03_mock_mwlike_halos.csv
             - 03_mock_mwlike_subhalos.csv
             - 03_logmvir_pdf.csv
+
+        - plots/
+            - 03_halo_shmr_&_logmvir_pdf.pdf
+            - 03_smf.pdf
 """
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import graphic_tools.mycolors as clrs
 import halo_tools.halo_relations as hrel
 import halo_tools.halo_constants as hcnst
 import halo_tools.halo_distributions as hdst
+import galaxy_tools.galaxy_distributions as gdst
 
 # Personal set up for plots
 plt.rcParams.update(clrs.my_plt_confg)
@@ -42,9 +48,27 @@ mock_mwlike_subhalos = mock_mwlike_subhalos[mock_mwlike_subhalos['Subhalo_logMst
 mean_logmvir, logmvir_pdf = hdst.compute_halomass_distribution(mock_mwlike_halos['Halo_logMvir'])
 print(f'The logarithmic expected value for the halo virial mass distribution is: {mean_logmvir:5.2f}')
 
+#================================================================================
+# Stellar Mass Function (SMF) for Central Galaxies and Satellite Galaxies
+#================================================================================
+# SMF for central galaxies
+central_smf = gdst.compute_smf(mock_mwlike_halos['Halo_logMste'])
+#SMF for satellite galaxies
+satellite_smf = gdst.compute_smf(mock_mwlike_subhalos['Subhalo_logMste'])
+
 #=======================================
 # Plots
 #=======================================
+# Halo Virial Mass Distribution
 fig1, axs1 = plt.subplots(1,1,figsize= (7,7))
 axs1.plot(logmvir_pdf['log_Mvir'],logmvir_pdf['PDF'],color= clrs.PEARL_BLACK,rasterized= True)
+#plt.show()
+
+# Stellar Mass Function for Central Galaxies and Satellite Galaxies
+fig2, axs2 = plt.subplots(1,1,figsize= (7,7))
+axs2.plot(central_smf['log_Mste'],np.log10(central_smf['SMF']),color= clrs.SAKURA,label= r'SMF for MW Central Galaxies')
+axs2.plot(satellite_smf['log_Mste'],np.log10(satellite_smf['SMF']),color= clrs.FAV_PURPLE,label= r'SMF for MW Satellite Galaxies')
+axs2.set_xlabel(r'$\log{M_{star}}$  $[M_\odot]$',fontsize=15)
+axs2.set_ylabel(r'$\phi_{star}(M_{star,sat}|M_{star,cen})$  $[{dex}^{-1}]$',fontsize=15)
+axs2.legend()
 #plt.show()
