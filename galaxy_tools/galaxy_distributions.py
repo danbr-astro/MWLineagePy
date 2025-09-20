@@ -115,6 +115,7 @@ def gal_csmf_std(mean_csmf_array,subhalos_df):
     def halo_csmf(halo_id):
         hollow_ngal = list()
         auxiliar_df = subhalos_df[subhalos_df['Halo_id'] == halo_id]
+        # noinspection PyShadowingNames
         for logmste in logmste_array:
             n_gal = len(auxiliar_df[auxiliar_df['Subhalo_logMste'] >= logmste])
             hollow_ngal.append(n_gal)
@@ -133,3 +134,18 @@ def gal_csmf_std(mean_csmf_array,subhalos_df):
     mean_csmf_array['up_std'] = mean_csmf_array['mean_galCSMF'] + mean_csmf_array['Sigma']
     mean_csmf_array['below_std'] = np.maximum(mean_csmf_array['mean_galCSMF'] - mean_csmf_array['Sigma'],10**(-3))
 
+def satgal_data_csmf(data_df):
+    """
+    This function computes de satellite galaxies csmf of observational data (McConnachie et al. 2012).
+    :param data_df: DataFrame with ths observed log stellar mass
+    :return galaxy_data_csmf: DataFrame with the data csmf with 2 columns. ---> ['log_Mstar','data_CSMF']
+    """
+    hollow_csmf = list()
+    for logmstar in data_df['log_Mstar'].unique():
+        n_gal = len(data_df[data_df['log_Mstar'] >= logmstar])
+        hollow_csmf.append(n_gal)
+    galaxy_data_csmf = pd.DataFrame({
+        'log_Mstar': data_df['log_Mstar'].unique(),
+        'data_CSMF':hollow_csmf
+    })
+    return galaxy_data_csmf
