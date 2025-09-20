@@ -4,7 +4,8 @@ halo_distributions.py
 Halo and subhalo statistics.
 
 This module computes the synthetic HMF for our Halo Mock Catalog. It also computes the distribution as a function of
-the virial mass and its expected value.
+the virial mass and its expected value. More over, it computes de Cumulative Number of Subhalos, its mean value and
+its standard deviation.
 
 """
 import numpy as np
@@ -75,3 +76,25 @@ def compute_halomass_distribution(logmvir_array):
         'PDF':count_array/(totnum_halos*bin_width)
     })
     return mean_logmvir, distribution_df
+#======================================================================
+# Cumulative Number of Subhalos. (Subhalo CSMF)
+#======================================================================
+def mean_subh_csmf(subhalos_df):
+    """
+    This function computes the mean subhalo csmf.
+    :param subhalos_df: Dataframe with the virial masses of the subhalos.
+    :return mean_subhalo_csmf: Dataframe with the subhalo csmf. ---> Columns: ['log_Mvir','mean_subhaloCSMF']
+    """
+    totnum_halos = len(subhalos_df['Halo_id'].unique())
+    logmvir_array = np.linspace(subhalos_df['Subhalo_logMvir'].min(),subhalos_df['Subhalo_logMvir'].max(),20)
+    hollow_list = list()
+    for logmvir in logmvir_array:
+        auxiliar_df = subhalos_df[subhalos_df['Subhalo_logMvir'] >= logmvir]
+        n_subhalo = len(auxiliar_df['Subhalo_logMvir'])
+        mean_csmf = n_subhalo/totnum_halos
+        hollow_list.append(mean_csmf)
+    mean_subhalo_csmf = pd.DataFrame({
+        'log_Mvir': logmvir_array,
+        'mean_subhaloCSMF': hollow_list
+    })
+    return mean_subhalo_csmf
