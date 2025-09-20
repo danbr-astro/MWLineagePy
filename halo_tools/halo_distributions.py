@@ -3,16 +3,16 @@ halo_distributions.py
 =====================
 Halo and subhalo statistics.
 
-This module computes the synthetic HMF for our Halo Mock Catalog.
+This module computes the synthetic HMF for our Halo Mock Catalog. It also computes the distribution as a function of
+the virial mass and its expected value.
 
 """
 import numpy as np
 import pandas as pd
 
-
-#===============================================
-# Compute synthetic HMF
-#===============================================
+#===============================
+# Auxiliar Functions
+#===============================
 def bin_midpoints(bin_array):
     """
     This function obtains the midpoints of the bin array returned by np.histogram function.
@@ -24,6 +24,9 @@ def bin_midpoints(bin_array):
         hollow_list.append((bin_array[i]+bin_array[i+1])/2)
     return hollow_list
 
+#===============================================
+# Compute synthetic HMF
+#===============================================
 def compute_hmf(halos_df,comoving_volume):
     """
     This function computes the synthetic HMF using histograms normalized by the bin width and comoving volume,
