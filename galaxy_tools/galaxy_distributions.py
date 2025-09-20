@@ -9,7 +9,6 @@ At first, it computes de Stellar Mass Function (SMF) for central and satellite g
 import numpy as np
 import pandas as pd
 
-
 #===============================
 # Auxiliar Functions
 #===============================
@@ -49,3 +48,27 @@ def compute_smf(logmste_array):
         'SMF': count_array/(totnum_gal*dex)
     })
     return smf_df
+#=========================================================================
+# Cumulative Number of Satellite Galaxies. (Satellite Galaxies CSMF)
+#=========================================================================
+def mean_gal_csmf(subhalos_df,logmste_threshold):
+    """
+    This function computes the cumulative number os¿f satellite galaxies as a function of the stellar mass.
+    :param subhalos_df: DataFrame of the subhalos and therefor, their satellite galaxies.
+    :param logmste_threshold: Stellar mass threshold for completeness.
+    :return mean_galaxy_csmf: DataFrame with the mean CSMF. --> Columns: ['log_Mste','mean_galCSMF']
+    """
+    # The computation of the average is in function on the total number of host halos.
+    totnum_hosthalos = len(subhalos_df['Halo_id'].unique())
+    logmste_array = np.linspace(logmste_threshold,subhalos_df['Subhalo_logMste'].max(),20)
+    hollow_list = list()
+    for logmste in logmste_array:
+        auxiliar_df = subhalos_df[subhalos_df['Subhalo_logMste'] >= logmste]
+        n_gal = len(auxiliar_df['Subhalo_logMste'])
+        mean_csmf = n_gal/totnum_hosthalos
+        hollow_list.append(mean_csmf)
+    mean_galaxy_csmf = pd.DataFrame({
+        'log_Mste' : logmste_array,
+        'mean_galCSMF': hollow_list
+    })
+    return mean_galaxy_csmf

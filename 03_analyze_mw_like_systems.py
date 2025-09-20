@@ -56,6 +56,14 @@ central_smf = gdst.compute_smf(mock_mwlike_halos['Halo_logMste'])
 #SMF for satellite galaxies
 satellite_smf = gdst.compute_smf(mock_mwlike_subhalos['Subhalo_logMste'])
 
+#===================================================================================================
+# Cumulative Number of Subhalos/Satellite Galaxies or Cumulative Satellite Mass Function (CSMF)
+#===================================================================================================
+# Mean Galaxy CSMF
+mean_galcsmf = gdst.mean_gal_csmf(mock_mwlike_subhalos,logmste_threshold)
+# Mean Subhalo CSMF
+mean_subhcsmf = hdst.mean_subh_csmf(mock_mwlike_subhalos)
+
 #=======================================
 # Plots
 #=======================================
@@ -71,4 +79,16 @@ axs2.plot(satellite_smf['log_Mste'],np.log10(satellite_smf['SMF']),color= clrs.F
 axs2.set_xlabel(r'$\log{M_{star}}$  $[M_\odot]$',fontsize=15)
 axs2.set_ylabel(r'$\phi_{star}(M_{star,sat}|M_{star,cen})$  $[{dex}^{-1}]$',fontsize=15)
 axs2.legend()
+#plt.show()
+
+# Cumulative Mass Function
+fig3, axs3 = plt.subplots(1,1,figsize=(7,7))
+# Galaxies
+    # Mean Galaxy CSMF
+axs3.plot(mean_galcsmf['log_Mste'],np.log10(mean_galcsmf['mean_galCSMF']),color='#404040',linewidth=3)
+
+# Subhalos
+    # Mean Subhalo CSMF
+axs3.plot(mean_subhcsmf['log_Mvir'],np.log10(mean_subhcsmf['mean_subhaloCSMF']),color= '#756bb1', linewidth= 3)
+axs3.axis((logmste_threshold,12.3,0,3))
 #plt.show()
