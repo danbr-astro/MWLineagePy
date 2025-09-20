@@ -18,6 +18,7 @@ import graphic_tools.mycolors as clrs
 import halo_tools.halo_relations as hrel
 import halo_tools.halo_constants as hcnst
 import halo_tools.halo_distributions as hdst
+import galaxy_tools.galaxy_mw_data as mwstdata
 import galaxy_tools.galaxy_distributions as gdst
 
 # Personal set up for plots
@@ -73,7 +74,10 @@ ind_subhcsmf = hdst.ind_subh_csmf(mock_mwlike_subhalos)
 gdst.gal_csmf_std(mean_galcsmf,mock_mwlike_subhalos)
 # Compute Subhalo CSMF Standard Deviation
 hdst.subh_csmf_std(mean_subhcsmf,mock_mwlike_subhalos)
-print(mean_subhcsmf)
+
+# MW Satellites Data
+mwsat_data = mwstdata.mw_sat()
+
 
 #=======================================
 # Plots
