@@ -71,6 +71,10 @@ ind_galcsmf = gdst.ind_gal_csmf(mock_mwlike_subhalos)
 # Individual Subhalo CSMF
 ind_subhcsmf = hdst.ind_subh_csmf(mock_mwlike_subhalos)
 
+# Compute Galaxy CSMF Standard Deviation
+gdst.gal_csmf_std(mean_galcsmf,mock_mwlike_subhalos)
+print(mean_galcsmf)
+
 #=======================================
 # Plots
 #=======================================
@@ -91,16 +95,18 @@ axs2.legend()
 # Cumulative Mass Function
 fig3, axs3 = plt.subplots(1,1,figsize=(7,7))
 # Galaxies
+    # 1σ Area
+axs3.fill_between(mean_galcsmf['log_Mste'],np.log10(mean_galcsmf['below_std']),np.log10(mean_galcsmf['up_std']),color='#dadaeb',alpha=1,rasterized= True,label=r'Galaxy $1\sigma$  Area')
     # Individual Satellite Galaxy CMSF
 first = True
-for halo_id in mock_mwlike_halos['Halo_id'].sample(500):
+for halo_id in mock_mwlike_halos['Halo_id'].sample(150,random_state=77):
     auxiliar_df = ind_galcsmf[ind_galcsmf['Halo_id'] == halo_id]
     if first:
-        plt.plot(auxiliar_df['log_Mste'], np.log10(auxiliar_df['ind_galCSMF']), color='#dadaeb', alpha=0.2, linewidth=1,
+        plt.plot(auxiliar_df['log_Mste'], np.log10(auxiliar_df['ind_galCSMF']), color='#9e9ac8', alpha=0.3, linewidth=1,
                  rasterized=True,label=r'MW-like galaxies CSMF')
         first = False
     else:
-        plt.plot(auxiliar_df['log_Mste'],np.log10(auxiliar_df['ind_galCSMF']),color='#dadaeb',alpha=0.2,linewidth=1,rasterized= True)
+        plt.plot(auxiliar_df['log_Mste'],np.log10(auxiliar_df['ind_galCSMF']),color='#9e9ac8',alpha=0.3,linewidth=1,rasterized= True)
     # Mean Galaxy CSMF
 axs3.plot(mean_galcsmf['log_Mste'],np.log10(mean_galcsmf['mean_galCSMF']),color='#756bb1',linewidth=3, rasterized= True,label=r'Mean Galaxy CSMF')
 
