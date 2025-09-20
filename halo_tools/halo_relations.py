@@ -151,6 +151,7 @@ def funct_to_solve(subhalo_mvir,halo_mvir,u,avg):
     '''
     f=mean_nsub(halo_mvir,subhalo_mvir)-(u*avg)
     return f
+
 def compute_subhalo_mvir(halos_df):
     '''
     :param halos_df: dataframe de los datos para los halos
@@ -172,7 +173,7 @@ def compute_subhalo_mvir(halos_df):
             subhalo_logMvir=np.log10(root.x[0])
             row.append((halo_ids[i],halo_logMvir[i],subhalo_logMvir))
         return row
-    resultados=Parallel(n_jobs=-1)(delayed(process)(i) for i in range(len(halo_ids)))
+    resultados=Parallel(n_jobs=8)(delayed(process)(i) for i in range(len(halo_ids)))
     resultados_planos=[item for sublist in resultados for item in sublist]
     subhalos_df=pd.DataFrame(resultados_planos,columns=['Halo_id','Halo_logMvir','Subhalo_logMvir'])
     return subhalos_df

@@ -168,8 +168,8 @@ mock_halos.to_csv('mock_data/01_mock_halos.csv',index = False) # Columns ---> ['
 #=========================================
 # Analytic & Synthetic Mass Function
 fig1, axs1 = plt.subplots(1,1,figsize=(7,7))
-axs1.plot(analytic_logmvir,np.log10(analytic_hmf),color = clrs.FAV_RED, linewidth = 5, label = r'Analytic $\phi_{vir}$')
-axs1.plot(hmf['Halo_logMvir'],np.log10(hmf['HMF']),color = clrs.FAV_BLUE, ls ='--', linewidth = 4, label = r'Synthetic $\phi_{vir}$')
+axs1.plot(analytic_logmvir,np.log10(analytic_hmf),color = clrs.FAV_RED, linewidth = 5, label = r'Analytic $\phi_{vir}$',restrized=True)
+axs1.plot(hmf['Halo_logMvir'],np.log10(hmf['HMF']),color = clrs.FAV_BLUE, ls ='--', linewidth = 4, label = r'Synthetic $\phi_{vir}$',restrized=True)
 axs1.set_title(r'Analytic \& Synthetic Mass Function')
 axs1.set_xlabel(r'$\log{M_{vir}}$  $[M_\odot]$',fontsize=15)
 axs1.set_ylabel(r'$\phi_{vir}$  $[{Mpc}^{-3}{dex}^{-1}]$',fontsize=15)
@@ -181,8 +181,8 @@ plt.show()
 fig2, axs2 = plt.subplots(1,1,figsize=(7,7))
 # logMvir array for mean Stellar to Halo Mass Relation
 logmvir_array = np.linspace(hcnst.HALO_LOGMVIR_MIN,hcnst.HALO_LOGMVIR_MAX,1000)
-axs2.scatter(mock_halos['Halo_logMvir'],mock_halos['Halo_logMste'],s = 1, rasterized = True,color = clrs.FAV_BLUE)
-axs2.plot(logmvir_array,hrel.SHMR_RP17(0,logmvir_array),linewidth = 2, color = clrs.PEARL_BLACK, label = r'Mean SHMR')
+axs2.scatter(mock_halos['Halo_logMvir'],mock_halos['Halo_logMste'],s = 1, rasterized = True,color = clrs.FAV_BLUE,restrized=True)
+axs2.plot(logmvir_array,hrel.SHMR_RP17(0,logmvir_array),linewidth = 2, color = clrs.PEARL_BLACK, label = r'Mean SHMR',restrized=True)
 axs2.set_title(r' Stellar to Halo Mass Relation for Halos')
 axs2.set_xlabel(r'$\log{M_{vir}}$  $[M_\odot]$',fontsize=15)
 axs2.set_ylabel(r'$\log{M_\ast}$  $[M_\odot]$',fontsize=15)
