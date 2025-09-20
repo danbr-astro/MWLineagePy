@@ -128,3 +128,33 @@ def ind_subh_csmf(subhalos_df):
     results = Parallel(n_jobs=8)(delayed(halo_csmf)(halo_id) for halo_id in subhalos_df['Halo_id'].unique())
     individual_subhalo_csmf = pd.concat(results,axis=0, ignore_index= True)
     return individual_subhalo_csmf
+
+def subh_csmf_std(mean_csmf_df,subhalos_df):
+    """
+    This function computes the standard deviation for the subhalo CSMF.
+    :param mean_csmf_df: DataFrame with the subhalo mean csmf
+    :param subhalos_df: DataFrame with the subhalo virial masses
+    :return None: It adds 3 columns to mean_csmf_df ---> ['Sigam','up_std','below_std']
+    """
+    logmvir_array = mean_csmf_df['log_Mvir'].values
+    # We compute the individual csmf for each galaxy but with logmste_array
+    def halo_csmf(halo_id):
+        hollow_nsubh = list()
+        auxiliar_df = subhalos_df[subhalos_df['Halo_id'] == halo_id]
+        for logmvir in logmvir_array:
+            n_subh = len(auxiliar_df[auxiliar_df['Subhalo_logMvir'] >= logmvir])
+            hollow_nsubh.append(n_subh)
+        df_row = pd.DataFrame([hollow_nsubh], columns=logmvir_array)
+        return df_row
+    results = Parallel(n_jobs=8)(delayed(halo_csmf)(halo_id) for halo_id in subhalos_df['Halo_id'].unique())
+    subhalo_csmf = pd.concat(results, axis=0, ignore_index=True)
+    # Now we can compute the standard deviation for the same value logmste
+    hollow_std = list()
+    for logmste in logmvir_array:
+        auxiliar_column = subhalo_csmf[logmste].values
+        std = auxiliar_column.std(ddof=0)
+        hollow_std.append(std)
+    mean_csmf_df['Sigma'] = hollow_std
+    # We use np.maximum to stablish a floor value
+    mean_csmf_df['up_std'] = mean_csmf_df['mean_subhaloCSMF'] + mean_csmf_df['Sigma']
+    mean_csmf_df['below_std'] = np.maximum(mean_csmf_df['mean_subhaloCSMF'] - mean_csmf_df['Sigma'], 10 ** (-3))

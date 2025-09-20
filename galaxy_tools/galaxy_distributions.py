@@ -108,7 +108,7 @@ def gal_csmf_std(mean_csmf_array,subhalos_df):
     but with uniform spacing in logmste array.
     :param mean_csmf_array: DataFrame with the mean csmf for all the system
     :param subhalos_df: DataFrame with the satellite galaxies log stellar mass
-    :return None: It adds to mean_csmf_array 3 columns ---> ['Sigma','up_std','below_std']
+    :return None: It adds 3 columns to mean_csmf_array ---> ['Sigma','up_std','below_std']
     """
     logmste_array = mean_csmf_array['log_Mste'].values
     # We compute the individual csmf for each galaxy but with logmste_array
@@ -127,7 +127,6 @@ def gal_csmf_std(mean_csmf_array,subhalos_df):
     for logmste in logmste_array:
         auxiliar_column = galaxy_csmf[logmste].values
         std = auxiliar_column.std(ddof=0)
-        avg = auxiliar_column.mean()
         hollow_std.append(std)
     mean_csmf_array['Sigma'] = hollow_std
     # We use np.maximum to stablish a floor value
