@@ -10,6 +10,8 @@ its standard deviation.
 """
 import numpy as np
 import pandas as pd
+from joblib import Parallel,delayed
+
 
 #===============================
 # Auxiliar Functions
@@ -98,3 +100,31 @@ def mean_subh_csmf(subhalos_df):
         'mean_subhaloCSMF': hollow_list
     })
     return mean_subhalo_csmf
+
+def ind_subh_csmf(subhalos_df):
+    """
+    This function computes the individual CSMF that is to say, compute for each host halo
+    its cumulative number of satellites.
+    :param subhalos_df: DataFrame with subhalos logarithmic virial mass for thc csmf
+    :return individual_subhalo_csmf: DataFrame with all the csmf for each halo:
+    Columns ---> ['Halo_id','log_Mvir','ind_subhCSMF']
+    """
+    def halo_csmf(halo_id):
+        hollow_haloid = list()
+        hollow_logmvir = list()
+        hollow_csmf = list()
+        auxiliar_df = subhalos_df[subhalos_df['Halo_id'] == halo_id].sort_values(by='Subhalo_logMvir')
+        for logmvir in auxiliar_df['Subhalo_logMvir']:
+            n_subh = len(auxiliar_df[auxiliar_df['Subhalo_logMvir'] >= logmvir])
+            hollow_haloid.append(halo_id)
+            hollow_logmvir.append(logmvir)
+            hollow_csmf.append(n_subh)
+        partial_df = pd.DataFrame({
+            'Halo_id': hollow_haloid,
+            'log_Mvir': hollow_logmvir,
+            'ind_subhCSMF': hollow_csmf
+        })
+        return partial_df
+    results = Parallel(n_jobs=8)(delayed(halo_csmf)(halo_id) for halo_id in subhalos_df['Halo_id'].unique())
+    individual_subhalo_csmf = pd.concat(results,axis=0, ignore_index= True)
+    return individual_subhalo_csmf
