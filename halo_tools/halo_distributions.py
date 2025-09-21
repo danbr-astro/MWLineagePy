@@ -27,6 +27,7 @@ def bin_midpoints(bin_array):
         hollow_list.append((bin_array[i]+bin_array[i+1])/2)
     return hollow_list
 
+
 #===============================================
 # Compute synthetic HMF
 #===============================================
@@ -158,3 +159,29 @@ def subh_csmf_std(mean_csmf_df,subhalos_df):
     # We use np.maximum to stablish a floor value
     mean_csmf_df['up_std'] = mean_csmf_df['mean_subhaloCSMF'] + mean_csmf_df['Sigma']
     mean_csmf_df['below_std'] = np.maximum(mean_csmf_df['mean_subhaloCSMF'] - mean_csmf_df['Sigma'], 10 ** (-3))
+
+def mw_subhcsmf(mwanalog_xis,subhalos_df):
+    """
+    This function computes the 'real' MW subhalo CSMF using the 5% of the mock satellite galaxies of lower Xi²
+    to the observed MW CSMF using McConnachie observed data. For this purpose, it uses the subhalos that host
+    that satellite galaxies to computes its subhalo CSMF.
+    :param mwanalog_xis: DataFrame with the halo_ids of the host halos with satellite galaxies with lower Xi².
+    :param subhalos_df: DataFrame with subhalo virial masses neede to comute the CSMF
+    :return mw_subhalo_csmf: DataFrame with the observed MW subhalo CSMF
+    """
+    ntot_halos = len(mwanalog_xis['Halo_id'])
+    # We filter those systems were their Xi² are in the 5%
+    auxiliar_df1 = subhalos_df[subhalos_df['Halo_id'].isin(mwanalog_xis['Halo_id'])]
+    n_bins=20
+    logmvir_array = np.linspace(auxiliar_df1['Subhalo_logMvir'].min(),auxiliar_df1['Subhalo_logMvir'].max(),n_bins)
+    hollow_cmsf = list()
+    for logmvir in logmvir_array:
+        auxiliar_df2 = auxiliar_df1[auxiliar_df1['Subhalo_logMvir'] >= logmvir]
+        n_subh = len(auxiliar_df2['Subhalo_logMvir'])
+        subh_csmf = n_subh/ntot_halos
+        hollow_cmsf.append(subh_csmf)
+    mw_subhalo_csmf = pd.DataFrame({
+        'log_Mvir':logmvir_array,
+        'mw_subhCSMF': hollow_cmsf
+    })
+    return mw_subhalo_csmf

@@ -10,9 +10,11 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel,delayed
 from scipy.interpolate import interp1d
+import halo_tools.halo_relations as hrel
+import halo_tools.halo_constants as hcnst
 
 #===============================
-# Auxiliar Functions
+# Auxiliar Functions & Constants
 #===============================
 def bin_midpoints(bin_array):
     """
@@ -24,6 +26,9 @@ def bin_midpoints(bin_array):
     for i in range(len(bin_array)-1):
         hollow_list.append((bin_array[i]+bin_array[i+1])/2)
     return hollow_list
+# log Stellar Mass Threshold for Completeness
+min_meanlogmste = hrel.SHMR_RP17(0,hcnst.SUBHALO_LOGMVIR_MIN)
+logmste_threshold = min_meanlogmste + (3*0.15) # +3σ (0.15 lognormal)
 
 #==============================
 # Stellar Mass Function SMF
