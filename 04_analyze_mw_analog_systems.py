@@ -47,6 +47,13 @@ xis_df = gdst.xis_csmf(mw_csmf,ind_galcsmf,mock_mwlike_subhalos)
 # Compute Xi² PDF
 xis_pdf = gdst.xis_pdf(xis_df)
 
+#================================================
+# MW Analogs
+#================================================
+# We add another constraint. That the logarithmic maximum stellar mass for a satellite galaxy has to be above 8.5. (SMC)
+smc_xis_df = xis_df[xis_df['max_logMste'] >= 8.5] # The Small Magellanic Cloud has aproximately logMste ~ 8.5
+# Compute SMC Xi² PDF}
+smc_xis_pdf = gdst.xis_pdf(smc_xis_df)
 
 #=================================================
 # Plots
@@ -54,6 +61,7 @@ xis_pdf = gdst.xis_pdf(xis_df)
 # Xi² PDF
 fig1, axs1= plt.subplots(1,1,figsize=(7,7))
 axs1.plot(xis_pdf['log_xi'],xis_pdf['xi_PDF'],color = clrs.SAKURA,label=r'Without SMC constraint')
+axs1.plot(smc_xis_pdf['log_xi'],smc_xis_pdf['xi_PDF'],color=clrs.FAV_PURPLE,label=r'With SMC constraint')
 axs1.set_xlabel(r'$\log{\mathcal{X}i^2}$',fontsize=15)
 axs1.set_ylabel(r'$P(\log{\mathcal{X}i^2})$',fontsize=15)
 plt.legend()
