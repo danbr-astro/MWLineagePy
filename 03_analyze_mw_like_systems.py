@@ -15,7 +15,6 @@ Outputs
             - 03_mean_subhcsmf.csv
             - 03_ind_galcsmf.csv
             - 03_ind_subhcsmf.csv
-
         - data/
             - McConnachie_2012.csv
         - plots/
@@ -147,7 +146,7 @@ axs2.legend()
 plt.savefig('plots/03_smf.pdf')
 plt.show()
 
-# Cumulative Mass Function
+# Cumulative Number of Subhalos/Satellite Galaxies CSMF
 fig3, axs3 = plt.subplots(1,1,figsize=(7,7))
 # Galaxies
     # 1σ Area
