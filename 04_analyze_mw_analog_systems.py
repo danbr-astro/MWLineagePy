@@ -44,3 +44,17 @@ mwlike_logmvir_pdf = pd.read_csv('mock_data/03_mwlogmvir_pdf.csv')
 #============================================
 # Compute Xi² for each individual csmf for the mw csmf
 xis_df = gdst.xis_csmf(mw_csmf,ind_galcsmf,mock_mwlike_subhalos)
+# Compute Xi² PDF
+xis_pdf = gdst.xis_pdf(xis_df)
+
+
+#=================================================
+# Plots
+#==================================================
+# Xi² PDF
+fig1, axs1= plt.subplots(1,1,figsize=(7,7))
+axs1.plot(xis_pdf['log_xi'],xis_pdf['xi_PDF'],color = clrs.SAKURA,label=r'Without SMC constraint')
+axs1.set_xlabel(r'$\log{\mathcal{X}i^2}$',fontsize=15)
+axs1.set_ylabel(r'$P(\log{\mathcal{X}i^2})$',fontsize=15)
+plt.legend()
+plt.show()

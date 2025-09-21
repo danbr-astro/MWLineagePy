@@ -206,3 +206,22 @@ def xis_csmf(mw_csmf,ind_galcsmf,subhalos_df):
     results = [df for df in results if df is not None]
     xis_df = pd.concat(results,axis=0,ignore_index=True).sort_values(by= 'xi_2')
     return xis_df
+
+def xis_pdf(xis_df):
+    """
+    This function computes the log(Xi²) PDF
+    :param xis_df: DataFrame with the Xi² of each halo system.
+    :return xis_pdf: Dataframe with the PDF of all Xi²'s with 2 columns: ---> ['log_xi','xi_PDF']
+    """
+    min_logxi = np.log10(xis_df['xi_2'].min())
+    max_logxi = np.log10(xis_df['xi_2'].max())
+    n_bins = 20
+    bin_width = (max_logxi-min_logxi)/n_bins
+    n_tot = len(xis_df['xi_2'])
+    count_array, bin_array = np.histogram(np.log10(xis_df['xi_2']),bins=n_bins,range=(min_logxi,max_logxi))
+    logxi_array = bin_midpoints(bin_array)
+    xi_pdf = pd.DataFrame({
+        'log_xi':logxi_array,
+        'xi_PDF':count_array/(n_tot*bin_width)
+    })
+    return  xi_pdf
