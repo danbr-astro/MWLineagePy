@@ -9,6 +9,7 @@ At first, it computes de Stellar Mass Function (SMF) for central and satellite g
 import numpy as np
 import pandas as pd
 from joblib import Parallel,delayed
+from scipy.interpolate import interp1d
 
 #===============================
 # Auxiliar Functions
@@ -149,3 +150,59 @@ def satgal_data_csmf(data_df):
         'data_CSMF':hollow_csmf
     })
     return galaxy_data_csmf
+
+def xis_csmf(mw_csmf,ind_galcsmf,subhalos_df):
+    """
+    This function computes the Xi² between individual satellite galaxies csmf and the real MW csmf in order to select
+    the MW analog systems. Note: logMste and logMstar are both used to name the log stellar mass., they are used to
+    dofferentiate between the mock data and the observed data.
+    :param mw_csmf: DataFrame with the observed MW CSMF
+    :param ind_galcsmf: DataFrame with the individual mock satellite galaxies CSMF
+    :param subhalos_df: DataFrame of the individual stellar mass for each of the host halos.
+    :return:
+    """
+    # Interval validation to avoid extrapolation
+    min_data_logmstar = mw_csmf['log_Mstar'].min()
+    max_data_logmstar = mw_csmf['log_Mstar'].max()
+    def paral_halo(halo_id):
+        # We compute the Xi² for each individual CSMF with the real MW CSMF
+        auxiliar_df = ind_galcsmf[ind_galcsmf['Halo_id'] == halo_id]
+        # We need minimum five points
+        if len(auxiliar_df['Halo_id']) > 5:
+            min_individual_logmste = auxiliar_df['log_Mste'].min()
+            max_individual_logmste = auxiliar_df['log_Mste'].max()
+            # To constraint the MW-like galaxies of maximum log stellar mass above 8.5 (Small Magellanic Cloud)
+            logmste_df = subhalos_df[subhalos_df['Halo_id'] == halo_id]
+            interp_function = interp1d(auxiliar_df['log_Mste'],auxiliar_df['ind_galCSMF'],kind='cubic')
+            if (min_individual_logmste<=min_data_logmstar) and (max_individual_logmste<=max_data_logmstar):
+                interp_interval = mw_csmf[mw_csmf['log_Mstar']<max_individual_logmste]
+            elif (min_individual_logmste<=min_data_logmstar) and (max_individual_logmste>=max_data_logmstar):
+                interp_interval = mw_csmf
+            elif (min_individual_logmste>=min_data_logmstar) and (max_individual_logmste>=max_data_logmstar):
+                interp_interval = mw_csmf[mw_csmf['log_Mstar']>min_individual_logmste]
+            elif (min_individual_logmste>=min_data_logmstar) and (max_individual_logmste<=max_data_logmstar):
+                interp_interval = mw_csmf[(mw_csmf['log_Mstar']>min_individual_logmste) & (mw_csmf['log_Mstar']<max_individual_logmste)]
+            else: interp_interval = None # ---> For control
+            interp_data = pd.DataFrame({
+                'log_Mstar':interp_interval['log_Mstar'],
+                'interp_csmf':interp_function(interp_interval['log_Mstar']),
+                'mw_csmf': interp_interval['data_CSMF']
+            })
+            # Compute Xi²
+            substraction = interp_data['interp_csmf'] - interp_data['mw_csmf']
+            squared = substraction ** 2.0
+            xi2 = squared.sum()
+            xi2_csmf = pd.DataFrame({
+                'Halo_id': [halo_id],
+                'xi_2': [xi2],
+                'min_logMste': [logmste_df['Subhalo_logMste'].min()],
+                'max_logMste': [logmste_df['Subhalo_logMste'].max()]
+            })
+            return xi2_csmf
+        else:
+            return None # If neither of the conditions are satisfied
+    results = Parallel(n_jobs=8)(delayed(paral_halo)(halo_id) for halo_id in ind_galcsmf['Halo_id'].unique())
+    # For the csmf that has less than 5 points, we have to delete their None values
+    results = [df for df in results if df is not None]
+    xis_df = pd.concat(results,axis=0,ignore_index=True).sort_values(by= 'xi_2')
+    return xis_df
