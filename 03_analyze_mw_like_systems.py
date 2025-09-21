@@ -1,6 +1,11 @@
 """
 03_analyze_mw_like_systems
 --------------------------
+This 3.° main script focus our mock data into halos that host MW-like galaxies, defined by the ones
+that host a central galaxy stellar mass log(Mste) that satifies log(Mste) ∈ [10.64,10.84], then it studies and computes
+their properties, specifically its Stellar Mass Function SMF and its Cumulative Number of Satellite Galaxies/Subhalos
+CSMF.
+
 Outputs
         - mockdata/
             - 03_mock_mwlike_halos.csv
