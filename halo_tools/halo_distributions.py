@@ -185,3 +185,25 @@ def mw_subhcsmf(mwanalog_xis,subhalos_df):
         'mw_subhCSMF': hollow_cmsf
     })
     return mw_subhalo_csmf
+
+def csmf_slope(csmf_df,param):
+    """
+    This function computes the csmf function slope for the MW analog subhalo csmf (if param = 0) or for the
+    MW like subhalo csmf (if param != 0)
+    :param csmf_df: DataFrame with MW-like o MW-analog CSMF
+    :param param: Selection (0 or anything) to select wich slope the function is going to compute
+    :return m: Slope value
+    """
+    if param == 0:
+        y = csmf_df['mw_subhCSMF'].values
+        x = csmf_df['log_Mvir'].values
+        m = (y[y.argmax()] - y[y.argmin()]) / (x[y.argmax()] - x[y.argmin()])
+        return m
+    else:
+        y = csmf_df['mean_subhaloCSMF'].values
+        x = csmf_df['log_Mvir'].values
+        m = (y[y.argmax()] - y[y.argmin()]) / (x[y.argmax()] - x[y.argmin()])
+        return m
+
+
+

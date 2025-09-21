@@ -64,6 +64,11 @@ mwanalogs_xis = smc_xis_df.iloc[:select_5] # Selection based on SMC and Xi² con
 mwanalogs_haloid = mwanalogs_xis['Halo_id']
 # Compute Observed MW Subhalo CSMF
 mw_subhalo_csmf = hdst.mw_subhcsmf(mwanalogs_xis,mock_mwlike_subhalos)
+# Compute slope for MW analog subhalo CSMF and MW like subhalo CSMF
+mwanalog_slope = hdst.csmf_slope(mw_subhalo_csmf,0)
+mwlike_slope = hdst.csmf_slope(mean_subhcsmf,2)
+print(f'The slope for the MW analog CSMF is: {mwanalog_slope}')
+print(f'The slope for the MW like CSMF is : {mwlike_slope}')
 
 #=================================================
 # Plots
