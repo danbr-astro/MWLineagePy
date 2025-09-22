@@ -1,5 +1,5 @@
 """
-06_mw_analogs_progenitors_finder.py
+06_mw_analogs_progenitors_analyzer.py
 -----------------------------------
 This 6.° main script assigns to each gaaxy from Dimaduro & Golden sample, a probability density
 of being a mw analog progenitor at z>0. Then using that statistic weight, we compute properties
@@ -8,6 +8,8 @@ of the mw_progenitors for some z>0
 Outputs:
     data/:
     plots/:
+        - 06_mean_galaxy_evolution_&_progenitors.pdf
+        - 06_mw_progenitors_reff_evo.pdf
 """
 import numpy as np
 import pandas as pd
@@ -65,6 +67,32 @@ galaxy_data['pdf'] = norm.pdf(galaxy_data['log_Mste'],loc=galaxy_data['mean_logM
 norm_const = galaxy_data['pdf'].max()
 galaxy_data['norm_pdf'] = galaxy_data['pdf']/norm_const
 
+#=======================================================
+# Compute MW Progenitors Properties
+# Generate intervals that contains exactly 50 galaxies
+sorted_galaxy_data = galaxy_data.sort_values(by='z+1')
+sorted_galaxy_data.drop(['sigma_cvir','sigma_z'],axis=1,inplace=True)
+sorted_galaxy_data['num'] = np.arange(1,len(sorted_galaxy_data['z+1'])+1)
+n_gal = 500
+num_array = np.arange(0,33044,n_gal)
+
+hollow_list = list()
+for num_gal in num_array:
+    if num_gal == num_array[-1]:  # Conditional for final value
+        auxiliar_df = sorted_galaxy_data[sorted_galaxy_data['num'] > num_gal]
+        print(auxiliar_df)
+    else:
+        auxiliar_df = sorted_galaxy_data[(sorted_galaxy_data['num'] > num_gal) & (sorted_galaxy_data['num'] <= (num_gal+50))]
+
+    zplus = (auxiliar_df['z+1'].max()-auxiliar_df['z+1'].min())/2
+    #zplus = auxiliar_df['z+1'].mean()
+    weight_reff = auxiliar_df['norm_pdf'] * auxiliar_df['R_eff']
+    reff = weight_reff.sum()/auxiliar_df['norm_pdf'].sum()
+    hollow_list.append({
+        'z+1': zplus,
+        'R_eff': reff
+    })
+mw_progenitors_reff = pd.DataFrame(hollow_list)
 
 #==========================================
 # Plots
@@ -84,4 +112,12 @@ cbar.set_label('Normalized PDF', rotation=270, labelpad=20, fontsize=12)
 cbar.ax.tick_params(labelsize=10)
 axs2.set_xlabel(r'$\log (z+1)$',fontsize=15)
 axs2.set_ylabel(r'$\log M_\ast$   $[M_{\odot}]$',fontsize=15)
+plt.savefig('plots/06_mean_galaxy_evolution_&_progenitors.pdf')
+plt.show()
+
+fig3, axs3 = plt.subplots(1,1,figsize=(7,7))
+axs3.plot(np.log10(mw_progenitors_reff['z+1']),np.log10(mw_progenitors_reff['R_eff']),color=clrs.FAV_PURPLE,rasterized=True)
+axs3.set_xlabel(r'$\log{z+1}$',fontsize=15)
+axs3.set_ylabel(r'$\log{R_{eff}}$',fontsize=15)
+plt.savefig('plots/06_mw_progenitors_reff_evo.pdf')
 plt.show()
