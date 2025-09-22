@@ -1,6 +1,8 @@
-import numpy as np
-from scipy.special import erfinv, erf
 import math
+import numpy as np
+import pandas as pd
+from scipy.special import erfinv, erf
+
 
 ############################Constants##########################
 G = 4.299E-9  # Gravitational constant Mpc Msol**-1 (km/s)**2
@@ -306,3 +308,33 @@ def f_cool_bar_Mo24(Mvir):
     x = Mvir / 1E12
 
     return 1 / (1 + x)
+
+def evolve_halos(halos_df,cosmology_array):
+    """
+    This function computes the halo log virial mass for halos at z>0, using the concentration
+    model.
+    :param halos_df: DataFrame with the halo log virial mass at z=0
+    :param cosmology_array: Cosmological parameters list
+    :return halos_evo: DataFrame with the halo log virial mass for z>0
+    """
+    # Scale Factor Interval
+    a_array = np.linspace(1, 1 / 6, 50)
+    # Redshift Interval
+    z_array = redshift(a_array)
+    # Concentration Model for Halos
+    logmvir_array = halos_df['Halo_logMvir'].values  # log halo virial mass at z=0
+    haloids_array = halos_df['Halo_id'].values
+    cvir_array = (10 ** halos_df['Halo_logCvir']).values  # cvir at z=0
+    hollow_list = list()
+    for index in range(len(logmvir_array)):
+        for z in z_array:
+            logmvir_z = generalized_log10Mvir_progenitors(logmvir_array[index], 0, z, cvir_array[index], cosmology_array)
+            zplus_one = z + 1
+            hollow_list.append({
+                'Halo_id': haloids_array[index],
+                'Halo_logMvir[z0]': logmvir_array[index],
+                'z+1': zplus_one,
+                'Halo_logMvir[z]': logmvir_z
+            })
+    halos_evo = pd.DataFrame(hollow_list)
+    return halos_evo
