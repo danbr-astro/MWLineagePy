@@ -28,3 +28,13 @@ PEARL_BLACK = '#121212'
 PEARL_YELLOW = '#FFFF00'
 SPRING_GREEN = '#00FF7F'
 SAKURA = '#DE3163'
+
+# Grey Palette
+LIGHT_GREY = '#cccccc'
+MID_GREY = '#666666'
+DARK_GREY = '#404040'
+
+# Lavender Palette
+LIGHT_LAVENDER = '#dadaeb'
+MID_LAVENDER = '#9e9ac8'
+DEEP_LAVENDER = '#756bb1'
