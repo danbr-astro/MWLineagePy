@@ -230,3 +230,15 @@ def xis_pdf(xis_df):
         'xi_PDF':count_array/(n_tot*bin_width)
     })
     return  xi_pdf
+
+#===========================================================
+# Redshift Associated Error (Rodríguez-Puebla et al. 2025)
+#===========================================================
+def sigma_z(z):
+    p1 = 0.07
+    p2 = 0.01
+    p3 = -0.05
+    p4 = 0.08
+    a = 1 / (1 + z)
+    z_err = p1 + (p2 * (1 - a)) + (p3 * np.log10(a)) + (p4 * z)
+    return np.minimum(z_err, 0.4)
