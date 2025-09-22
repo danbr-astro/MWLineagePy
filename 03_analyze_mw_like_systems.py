@@ -1,6 +1,11 @@
 """
 03_analyze_mw_like_systems
 --------------------------
+This 3.° main script focus our mock data into halos that host MW-like galaxies, defined by the ones
+that host a central galaxy stellar mass log(Mste) that satifies log(Mste) ∈ [10.64,10.84], then it studies and computes
+their properties, specifically its Stellar Mass Function SMF and its Cumulative Number of Satellite Galaxies/Subhalos
+CSMF.
+
 Outputs
         - mockdata/
             - 03_mock_mwlike_halos.csv
@@ -10,7 +15,6 @@ Outputs
             - 03_mean_subhcsmf.csv
             - 03_ind_galcsmf.csv
             - 03_ind_subhcsmf.csv
-
         - data/
             - McConnachie_2012.csv
         - plots/
@@ -54,7 +58,11 @@ mock_mwlike_subhalos = mock_mwlike_subhalos[mock_mwlike_subhalos['Subhalo_logMst
 # Compute MW Halo Virial Mass Distribution
 #=======================================
 mean_logmvir, logmvir_pdf = hdst.compute_halomass_distribution(mock_mwlike_halos['Halo_logMvir'])
-print(f'The logarithmic expected value for the halo virial mass distribution is: {mean_logmvir:5.2f}')
+mwlike_std = mock_mwlike_halos['Halo_logMvir'].std()
+print(f'''
+The logarithmic expected value for the halo virial mass distribution is: {mean_logmvir:5.2f}
+The expected value has a standard deviation of: {mwlike_std:5.2f}
+''')
 
 #================================================================================
 # Stellar Mass Function (SMF) for Central Galaxies and Satellite Galaxies
@@ -142,7 +150,7 @@ axs2.legend()
 plt.savefig('plots/03_smf.pdf')
 plt.show()
 
-# Cumulative Mass Function
+# Cumulative Number of Subhalos/Satellite Galaxies CSMF
 fig3, axs3 = plt.subplots(1,1,figsize=(7,7))
 # Galaxies
     # 1σ Area
@@ -178,6 +186,8 @@ for halo_id in mock_mwlike_halos['Halo_id'].sample(150,random_state=7):
     # Mean Subhalo CSMF
 axs3.plot(mean_subhcsmf['log_Mvir'],np.log10(mean_subhcsmf['mean_subhaloCSMF']),color= '#404040', linewidth= 3,label=r'Mean Subhalo CSMF')
 axs3.axis((logmste_threshold,12.3,0,2))
+axs3.set_xlabel(r'$\log M_\ast, \; \log M_\mathrm{sub-peak}$.',fontsize=13)
+axs3.set_ylabel(r'$N_\mathrm{sat}(\geq M_\ast|M_{\ast,\mathrm{MW}}), \; N_\mathrm{sub}(\geq M_\mathrm{sub-peak}|M_{\ast,\mathrm{MW}})$',fontsize=13)
 plt.legend()
 plt.savefig('plots/03_galaxy_&_subhalo_csmf.pdf')
 plt.show()
