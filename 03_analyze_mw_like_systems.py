@@ -58,7 +58,11 @@ mock_mwlike_subhalos = mock_mwlike_subhalos[mock_mwlike_subhalos['Subhalo_logMst
 # Compute MW Halo Virial Mass Distribution
 #=======================================
 mean_logmvir, logmvir_pdf = hdst.compute_halomass_distribution(mock_mwlike_halos['Halo_logMvir'])
-print(f'The logarithmic expected value for the halo virial mass distribution is: {mean_logmvir:5.2f}')
+mwlike_std = mock_mwlike_halos['Halo_logMvir'].std()
+print(f'''
+The logarithmic expected value for the halo virial mass distribution is: {mean_logmvir:5.2f}
+The expected value has a standard deviation of: {mwlike_std:5.2f}
+''')
 
 #================================================================================
 # Stellar Mass Function (SMF) for Central Galaxies and Satellite Galaxies
@@ -182,6 +186,8 @@ for halo_id in mock_mwlike_halos['Halo_id'].sample(150,random_state=7):
     # Mean Subhalo CSMF
 axs3.plot(mean_subhcsmf['log_Mvir'],np.log10(mean_subhcsmf['mean_subhaloCSMF']),color= '#404040', linewidth= 3,label=r'Mean Subhalo CSMF')
 axs3.axis((logmste_threshold,12.3,0,2))
+axs3.set_xlabel(r'$\log M_\ast, \; \log M_\mathrm{sub-peak}$.',fontsize=13)
+axs3.set_ylabel(r'$N_\mathrm{sat}(\geq M_\ast|M_{\ast,\mathrm{MW}}), \; N_\mathrm{sub}(\geq M_\mathrm{sub-peak}|M_{\ast,\mathrm{MW}})$',fontsize=13)
 plt.legend()
 plt.savefig('plots/03_galaxy_&_subhalo_csmf.pdf')
 plt.show()
