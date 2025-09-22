@@ -12,6 +12,7 @@ Outputs:
     mock_data/:
         - 05_mwanalogs_evo.csv
         - 05_mean_mwanalogs_evo.csv
+        - 05_mock_mwanalog_halos.csv
 """
 import numpy as np
 import pandas as pd
@@ -36,8 +37,6 @@ mock_mwlike_halos = pd.read_csv('mock_data/03_mock_mwlike_halos.csv')
 mock_mwlike_subhalos = pd.read_csv('mock_data/03_mock_mwlike_subhalos.csv')
 # Mock MW-analog halo's ID's
 mw_analogs_haloids = pd.read_csv('mock_data/04_mwanalogs_haloids.csv')
-# Dimaduro Galaxy Sample Data Interest Columns --> ['ID','z_best','Mste','Reff_5000']
-dimaduro_galaxy_sample = pd.read_csv('data/Dimaduro_galaxy_sample.dat',sep=r'\s+')
 
 # Obtaining MW-analog halos catalog
 mock_mwanalog_halos = mock_mwlike_halos[mock_mwlike_halos['Halo_id'].isin(mw_analogs_haloids['Halo_id'])].copy()
@@ -67,6 +66,9 @@ mean_mwanalogs_evo = gass.mean_evolve_galaxies(mwanalogs_evo)
 mwanalogs_evo.to_csv('mock_data/05_mwanalogs_evo.csv',index=False)
 # Mean Concentration Model
 mean_mwanalogs_evo.to_csv('mock_data/05_mean_mwanalogs_evo.csv',index=False)
+
+# Mock MW-analog Halo Mock Catalog
+mock_mwanalog_halos.to_csv('mock_data/05_mock_mwanalog_halos.csv',index=False)
 
 #================================================
 # Plots
