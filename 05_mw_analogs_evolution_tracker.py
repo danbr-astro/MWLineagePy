@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import graphic_tools.mycolors as clrs
 import halo_tools.halo_assembly as hass
 import halo_tools.halo_relations as hrel
+import galaxy_tools.galaxy_assembly as gass
 import cosmology_tools.cosmo_constants as csmlgy
 
 # Personal set up for plots
@@ -43,11 +44,13 @@ mock_mwanalog_halos['Sigma_gauss'] = mock_mwanalog_halos['Halo_logMste'] - mock_
 #=========================================
 # Concentration Evolution Model
 #=========================================
-# Scale Factor Interval
-a_array = np.linspace(1,1/6,50)
-# Redshift Interval
-z_array = hass.redshift(a_array)
-zplus_array = z_array + 1  # z+1
-
 # Concentration Model for Halos
 mwanalogs_evo = hass.evolve_halos(mock_mwanalog_halos,cosmology)
+
+# Concentration Model for Central Galaxies
+gass.evolve_galaxies(mwanalogs_evo)
+
+# Delete column ['Sigma_Gauss'], it is not necessary anymore
+mwanalogs_evo.drop('Sigma_Gauss',axis=1,inplace=True)
+
+

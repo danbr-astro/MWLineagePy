@@ -325,6 +325,7 @@ def evolve_halos(halos_df,cosmology_array):
     logmvir_array = halos_df['Halo_logMvir'].values  # log halo virial mass at z=0
     haloids_array = halos_df['Halo_id'].values
     cvir_array = (10 ** halos_df['Halo_logCvir']).values  # cvir at z=0
+    sigmagauss_array = halos_df['Sigma_gauss'].values
     hollow_list = list()
     for index in range(len(logmvir_array)):
         for z in z_array:
@@ -334,7 +335,8 @@ def evolve_halos(halos_df,cosmology_array):
                 'Halo_id': haloids_array[index],
                 'Halo_logMvir[z0]': logmvir_array[index],
                 'z+1': zplus_one,
-                'Halo_logMvir[z]': logmvir_z
+                'Halo_logMvir[z]': logmvir_z,
+                'Sigma_Gauss': sigmagauss_array[index]
             })
     halos_evo = pd.DataFrame(hollow_list)
     return halos_evo
